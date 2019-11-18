@@ -81,11 +81,19 @@
             _connection = new SqlConnection("Server=(localdb)\\mssqllocaldb;Integrated Security=true;");
             _connection.Open();
 
+
+            //lame... just to delete the existing user table
+            var c = _connection.CreateCommand();
+            c.CommandText = "drop table Users";
+            var r = c.ExecuteNonQuery();
+
+
             _options = new DbContextOptionsBuilder<EntityFrameworkContext>()
                     .UseSqlServer(_connection)
                     .Options;
 
-            using (var context = new EntityFrameworkContext(_options)) {
+            using (var context = new EntityFrameworkContext(_options))
+            {
                 context.Database.EnsureCreated();
             }
         }

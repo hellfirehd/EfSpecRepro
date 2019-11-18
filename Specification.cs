@@ -42,11 +42,9 @@
 
         public static AbstractSpecification<TDomainModel> operator !(AbstractSpecification<TDomainModel> spec)
         {
-            Expression<Func<TDomainModel, Boolean>> inverted = model => !spec.IsSatisfiedBy(model);
-            var param = Expression.Parameter(typeof(TDomainModel));
-            var expr = new ReplaceParameterVisitor { { inverted.Parameters.Single(), param } }.Visit(inverted.Body);
-            var lambda = Expression.Lambda<Func<TDomainModel, Boolean>>(expr, param);
-            return new ConstructedSpecification<TDomainModel>(lambda);
+            var predicate = spec.Predicate;
+            var newExpr = Expression.Lambda<Func<TDomainModel, bool>>(Expression.Not(predicate.Body), predicate.Parameters[0]);
+            return new ConstructedSpecification<TDomainModel>(newExpr);
         }
 
         protected static AbstractSpecification<TDomainModel> CombineSpecification(AbstractSpecification<TDomainModel> left, AbstractSpecification<TDomainModel> right, Func<Expression, Expression, BinaryExpression> combiner)
